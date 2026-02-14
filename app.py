@@ -2,8 +2,32 @@ import streamlit as st
 import pickle
 import pandas as pd
 import os
+import gdown
+import subprocess
 
 st.set_page_config(page_title="Movie Recommender", page_icon="🎬")
+
+# =====================================================
+# DOWNLOAD MODEL FILES FROM GOOGLE DRIVE IF MISSING
+# =====================================================
+
+def download_file(file_id, output):
+    if not os.path.exists(output):
+        url = f"https://drive.google.com/uc?id={file_id}"
+        gdown.download(url, output, quiet=False)
+
+# 🔥 REPLACE THESE WITH YOUR REAL FILE IDs
+SIMILARITY_ID = "1tHb-psekOycvxiDe8b5h9lGqmewSOflY"
+MOVIE_DATA_ID = "1TjpJ7NHWp02K5VwHVdqAvaGEtNDJ83zT"
+MOVIE_DICT_ID = "1iCkIqxMRYT3ucDsxXwyCktQ-Ga_4nVHP"
+
+download_file(SIMILARITY_ID, "similarity.pkl")
+download_file(MOVIE_DATA_ID, "movie_data.pkl")
+download_file(MOVIE_DICT_ID, "movie_dict.pkl")
+
+# =====================================================
+# LOAD DATA
+# =====================================================
 
 def load_data():
     """Load movies and similarity data"""
@@ -67,7 +91,10 @@ def load_data():
         st.error(f"Error loading data: {str(e)}")
         return None, None
 
-# Main app
+# =====================================================
+# MAIN APP
+# =====================================================
+
 st.title("🎬 Movie Recommendation System")
 
 # Load data
@@ -78,7 +105,6 @@ if movies is None or similarity is None:
     st.error("Failed to load movie data. Please run prepare_data.py first.")
     
     if st.button("Run Data Preparation"):
-        import subprocess
         result = subprocess.run(['python', 'prepare_data.py'], capture_output=True, text=True)
         st.code(result.stdout)
         st.rerun()
@@ -135,7 +161,3 @@ with st.sidebar:
     if st.button("🔄 Refresh Data"):
         st.cache_data.clear()
         st.rerun()
-        
-        
-
-# https://github.com/C:/Users/Dell/OneDrive/Desktop/React-js/project4/render-demo.git
